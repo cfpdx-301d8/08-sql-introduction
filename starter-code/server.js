@@ -31,19 +31,19 @@ app.use(express.static('./public'));
 
 // REVIEW: Routes for requesting HTML resources
 app.get('/', function(request, response) {
-  // NOTE:
+  // NOTE: Sending back the file index.html as a response to any GET requests when no path is specified in the request.
   response.sendFile('index.html', {root: '.'});
 });
 
 app.get('/new', function(request, response) {
-  // NOTE:
+  // NOTE: Sending back the file new.html when the request to the server has the path /new.
   response.sendFile('new.html', {root: '.'});
 });
 
 
 // REVIEW: Routes for making API calls to use CRUD Operations on our database
 app.get('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: app.get is listening for a post request at /articles which is configured in the prototype method/function starting on line 35 of article.js. This queries the Postgres database using the built in .query method which takes SQL syntax as a string. We are selecting all fields and records from the table named "article". We are then declaring a success callback function (.then) that is a primary method on promises that sends the result of our database query as a response. If there is an error, then we enter the .catch function/method on promises that consoles (err).
   client.query('SELECT * FROM articles')
   .then(function(result) {
     response.send(result.rows);
@@ -54,7 +54,7 @@ app.get('/articles', function(request, response) {
 });
 
 app.post('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: app.post is listening for a post request at /articles which is configured in the prototype method/function starting on line 58 of article.js. It is then using the .query method on the client to insert a series of new fields and connected records using SQL as a string. The values passed in are connected to an array which is the second argument of the query function that populates the records with the data (title, author, ect) that were entered into the corresponding form inputs that a user used on the web app to create a new article. Finally, there is a .then method/function that is sending back a response containing a string that will run when the post request is successful, or the .catch function will run if there was an error.
   client.query(
     `INSERT INTO
     articles(title, author, "authorUrl", category, "publishedOn", body)
@@ -78,7 +78,7 @@ app.post('/articles', function(request, response) {
 });
 
 app.put('/articles/:id', function(request, response) {
-  // NOTE:
+  // NOTE: This is listening for the put request that is configured in the function that starts on line 78 of article.js. When the request comes in, the SQL string that is the first argument of the .query function/method targets the fields and corresponding records in the table in the database and updates them with the body content (entered by the user on the corresponding webapp form inputs) for the field with the correct ID. This essentially replaces the pre-existing content in those fields/records with the new body content that was put in by the user. On success, the .then function runs sending by the string 'update complete', otherwise the .catch function runs.
   client.query(
     `UPDATE articles
     SET
@@ -104,7 +104,7 @@ app.put('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles/:id', function(request, response) {
-  // NOTE:
+  // NOTE: This is listening for a delete request that is configured in the function that starts on line 67 of article.js. When the request comes in, the SQL string that is the first argument of the .query function/method targets the field with the corresponding ID (based on what was entered in the form input) in the table within the database and deletes it. On success, the string 'delete complete' is sent as a response (the body of the response?), otherwise the .catch runs. 
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     [request.params.id]
@@ -118,7 +118,7 @@ app.delete('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: This is listening for a delete request that is configured in the function that starts on line 48 of article.js. When the request comes in, the SQL string that is the first argument of the .query function/method targets the entire articles table and deletes it. Upon success, the .then function runs and sends back a response with the string 'delete complete', otherwise the .catch function runs.
   client.query(
     'DELETE FROM articles;'
   )
@@ -130,7 +130,7 @@ app.delete('/articles', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE: This calls the loadDB function that is configured below starting on line 163. This creates the database/table and loads the articles and their data into it before the server is starten with app.listen below.
 loadDB();
 
 app.listen(PORT, function() {
