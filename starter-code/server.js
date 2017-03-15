@@ -5,6 +5,7 @@ const pg = require('pg');
 const fs = require('fs');
 const express = require('express');
 
+
 // REVIEW: Require in body-parser for post requests in our server
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
@@ -31,19 +32,19 @@ app.use(express.static('./public'));
 
 // REVIEW: Routes for requesting HTML resources
 app.get('/', function(request, response) {
-  // NOTE:
+  // NOTE: Sends the file 'index.html' to the client.
   response.sendFile('index.html', {root: '.'});
 });
 
 app.get('/new', function(request, response) {
-  // NOTE:
+  // NOTE: Makes a new route '/new' and sends file to client when they make the request.
   response.sendFile('new.html', {root: '.'});
 });
 
 
 // REVIEW: Routes for making API calls to use CRUD Operations on our database
 app.get('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: app.get is running a function which is called when the client navigates to '/articles', then the database is asked to select everything from the articles table and sends back all the rows of the table. It throws an error if the articles table can't be found, or if there's another error.
   client.query('SELECT * FROM articles')
   .then(function(result) {
     response.send(result.rows);
@@ -54,7 +55,7 @@ app.get('/articles', function(request, response) {
 });
 
 app.post('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: app.post posts all the returns from app.get and inserts them into the table, then alerts the client that the insert is complete. If there's an error, the client gets an error message.
   client.query(
     `INSERT INTO
     articles(title, author, "authorUrl", category, "publishedOn", body)
@@ -78,7 +79,7 @@ app.post('/articles', function(request, response) {
 });
 
 app.put('/articles/:id', function(request, response) {
-  // NOTE:
+  // NOTE: app.put recieves a client query. The query in this function is to update articles where the id is equal to $7. Once the query is done in the database the client receives a message 'update complete'.
   client.query(
     `UPDATE articles
     SET
@@ -104,7 +105,7 @@ app.put('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles/:id', function(request, response) {
-  // NOTE:
+  // NOTE: app.delete sends a query from the client to the database that asks to delete from articles anything that has the id of $1. Once the query is fulfilled the client receives a message, 'Delete complete'.
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     [request.params.id]
@@ -118,7 +119,7 @@ app.delete('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: app.delete sends a query from the client to delete all articles. Once the query is fulfilled the client receives a message 'Delete compelete'.
   client.query(
     'DELETE FROM articles;'
   )
@@ -130,7 +131,7 @@ app.delete('/articles', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE: loadDB() loads the database.
 loadDB();
 
 app.listen(PORT, function() {
@@ -141,7 +142,7 @@ app.listen(PORT, function() {
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
 function loadArticles() {
-  // NOTE:
+  // NOTE: the loadArticles function... first, a client query asks to count all the rows(records) in the articles table. Then, if the 0 index of that result is a string, the fs.readFile function is run which parses it out using JSON.parse. Then client query inserts values into the articles table.
   client.query('SELECT COUNT(*) FROM articles')
   .then(result => {
     if(!parseInt(result.rows[0].count)) {
@@ -161,7 +162,7 @@ function loadArticles() {
 }
 
 function loadDB() {
-  // NOTE:
+  // NOTE: loadDB creates a table 'articles' if there are no articles. 
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
       article_id SERIAL PRIMARY KEY,
