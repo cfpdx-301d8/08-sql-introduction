@@ -31,19 +31,19 @@ app.use(express.static('./public'));
 
 // REVIEW: Routes for requesting HTML resources
 app.get('/', function(request, response) {
-  // NOTE:
+  // DONE NOTE: When server.js is run, it calls this method. This route intercepts HTTP requests to the top level domain ('/') and then invokes an anonymous callback function which takes two arguments: the request (the HTTP request) and the response. We make use of the response argument by using the .sendFile method which transfers the file at path: index.html. Because the first argument is a relative path, the second argument specifies the root directory. Once index.html is served up, the code is evaluated and the script at the bottom runs. Article.fetchAll is called with the argument articleView.initIndexPage. Article.fetchAll calls the GET route to /articles which then retrieves the SQL data (articles) from the database. That data is then passed in as an argument to articleView.initIndexPage, which inserts each templated article into the index page's HTML and runs the initializing methods like the filters, click handler, etc.
   response.sendFile('index.html', {root: '.'});
 });
 
 app.get('/new', function(request, response) {
-  // NOTE:
+  // DONE NOTE: This is intercepting HTTP requests to /new and invokes an anonymous function which returns new.html similar to how index.html was served up above.
   response.sendFile('new.html', {root: '.'});
 });
 
 
 // REVIEW: Routes for making API calls to use CRUD Operations on our database
 app.get('/articles', function(request, response) {
-  // NOTE:
+  // DONE NOTE: This queries the articles table and has it return everything. If successful, it calls an anonymous function which takes the returned data as an argument. It then sends back just the relevant rows of the table (not the column header). If there is an error and the promise is broken/data isn't returned, it logs the error object (err)
   client.query('SELECT * FROM articles')
   .then(function(result) {
     response.send(result.rows);
@@ -54,7 +54,7 @@ app.get('/articles', function(request, response) {
 });
 
 app.post('/articles', function(request, response) {
-  // NOTE:
+  // DONE NOTE: This POST route is called by Article.insertRecord() (presumably upon submission of the form on new.html). It takes the body of the request and uses it to populate a new entry in the database using SQL. The reason the values aren't passed directly into the VALUES list is to prevent SQL injection. This way, they map to the array that is the second argument of client.query. If that operation is successful, it will return the response 'insert complete'.
   client.query(
     `INSERT INTO
     articles(title, author, "authorUrl", category, "publishedOn", body)
@@ -78,7 +78,7 @@ app.post('/articles', function(request, response) {
 });
 
 app.put('/articles/:id', function(request, response) {
-  // NOTE:
+  // DONE NOTE: This route is called by Article.prototype.updateRecord, which updates the specified row in the articles table using protection against SQL injection as before. If successful, it returns the message 'update complete'. Otherwise, it logs the error object to the console.
   client.query(
     `UPDATE articles
     SET
@@ -104,7 +104,7 @@ app.put('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles/:id', function(request, response) {
-  // NOTE:
+  // DONE NOTE: This route is called by Article.prototype.deleteRecord. It passes an ID referencing the specific article to be deleted (request.params.id). Again, protection against SQL injection is used. If successful, it returns 'Delete complete'. Otherwise, it logs the error object.
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     [request.params.id]
@@ -118,7 +118,7 @@ app.delete('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: This route is called by Article.truncateTable. It deletes the entire articles table, and if successful, returns the response 'Delete complete'.
   client.query(
     'DELETE FROM articles;'
   )
@@ -130,7 +130,7 @@ app.delete('/articles', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE: This calls the loadDB function, defined on line 163 below. 
 loadDB();
 
 app.listen(PORT, function() {
@@ -141,7 +141,7 @@ app.listen(PORT, function() {
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
 function loadArticles() {
-  // NOTE:
+  // NOTE: This function begins by querying the articles table and having it return its number of rows. If there are rows, nothing happens. If there are no rows, it goes into the filesystem using the FS module (that was required at the top of this file) and writes each article into the articles table. 
   client.query('SELECT COUNT(*) FROM articles')
   .then(result => {
     if(!parseInt(result.rows[0].count)) {
@@ -161,7 +161,7 @@ function loadArticles() {
 }
 
 function loadDB() {
-  // NOTE:
+  // NOTE: This creates the SQL table if one does not already exist. It specifies the column headers (table schema) and constraints for each column header's type and length. If the table is successfully created, it will then run loadArticles() to populate the table.
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
       article_id SERIAL PRIMARY KEY,
