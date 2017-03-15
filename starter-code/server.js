@@ -31,19 +31,19 @@ app.use(express.static('./public'));
 
 // REVIEW: Routes for requesting HTML resources
 app.get('/', function(request, response) {
-  // NOTE:
+  // NOTE: sending GET request to the server to create a path to the index page when the root directory is accesed
   response.sendFile('index.html', {root: '.'});
 });
 
 app.get('/new', function(request, response) {
-  // NOTE:
+  // NOTE: creating a path for the server to access the new.html page when "/new" is added to the url
   response.sendFile('new.html', {root: '.'});
 });
 
 
 // REVIEW: Routes for making API calls to use CRUD Operations on our database
 app.get('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: get request upon "/articles" being added to the url that retrieves all data from "articles" table in the database, then retrieves the individual rows of said table. These records are what are being requested from the AJAX call in the fetchAll function at line 35 of article.js
   client.query('SELECT * FROM articles')
   .then(function(result) {
     response.send(result.rows);
@@ -54,7 +54,7 @@ app.get('/articles', function(request, response) {
 });
 
 app.post('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: we're making a post reequest from /articles to the database table "articles" with a query from the client to INSERT a series of article objects into our articls table within the database. and then to send a response of "insert complete" when the request has been executed.  If there is an eerror it jumpts to catch and logs out "err". ths server request to the database corresponds to the AJAX put request from line 79 in article (in the updateRecord method of Article)
   client.query(
     `INSERT INTO
     articles(title, author, "authorUrl", category, "publishedOn", body)
@@ -78,7 +78,7 @@ app.post('/articles', function(request, response) {
 });
 
 app.put('/articles/:id', function(request, response) {
-  // NOTE:
+  // NOTE: This is where the server is asking the database to set individual id's for each article. These id's will be located in column 7 and the value will be equal to the paramiter withing the AJAX request from line 80.
   client.query(
     `UPDATE articles
     SET
@@ -104,7 +104,7 @@ app.put('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles/:id', function(request, response) {
-  // NOTE:
+  // NOTE: The deleteRecord method of Article the client made an AJAX request to delete an article, in assosiation wtih its id. here the server is passing on the client query to the database asking it to delete an article record based on the article id.
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     [request.params.id]
@@ -118,7 +118,7 @@ app.delete('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles', function(request, response) {
-  // NOTE:
+  // NOTE: the truncateTable method of Article makes a client AJAX request to delete an article independent of its id. this is the server passing on the client query to the database. when the request is complete, a respnse "delete complete" is sent back
   client.query(
     'DELETE FROM articles;'
   )
@@ -130,7 +130,7 @@ app.delete('/articles', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE: After shit is added or deleted from the database, loadDB is called, which will update our database to the most current version of itself and loaded for use again.
 loadDB();
 
 app.listen(PORT, function() {
@@ -141,7 +141,7 @@ app.listen(PORT, function() {
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
 function loadArticles() {
-  // NOTE:
+  // NOTE: When the database is being loaded, all corresponding records are loaded as well. If there are no records. retrieve articles from hackeripmsum file and populate the database table. 
   client.query('SELECT COUNT(*) FROM articles')
   .then(result => {
     if(!parseInt(result.rows[0].count)) {
@@ -161,7 +161,7 @@ function loadArticles() {
 }
 
 function loadDB() {
-  // NOTE:
+  // NOTE: if no table exists called "articles", one is created that defines the types of data within the records of the table. once the query is completed, loadArticles is called. 
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
       article_id SERIAL PRIMARY KEY,
