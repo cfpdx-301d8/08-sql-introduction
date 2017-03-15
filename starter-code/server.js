@@ -31,19 +31,20 @@ app.use(express.static('./public'));
 
 // REVIEW: Routes for requesting HTML resources
 app.get('/', function(request, response) {
-  // NOTE:
+  // DONE NOTE: We're getting our index.html file, and sending the file back to the client, as our root file (/). This is something happening within node, not SQL or postgres.
   response.sendFile('index.html', {root: '.'});
 });
 
 app.get('/new', function(request, response) {
-  // NOTE:
+  // DONE NOTE: We're getting our new.html file, and sending the file back to the client with the address '/new'. This is something happening within node, not SQL or postgres.
   response.sendFile('new.html', {root: '.'});
 });
 
 
 // REVIEW: Routes for making API calls to use CRUD Operations on our database
 app.get('/articles', function(request, response) {
-  // NOTE:
+  // DONE NOTE: We're taking a call from .fetchAll() (article.js, line 35). In the query, we're selecting everything in the table articles. We're then sending all of the table information back to .fetchAll, where we will populate our 'articles' element.
+  //We have a promise here, with a .catch() for a possible error.
   client.query('SELECT * FROM articles')
   .then(function(result) {
     response.send(result.rows);
@@ -54,7 +55,9 @@ app.get('/articles', function(request, response) {
 });
 
 app.post('/articles', function(request, response) {
-  // NOTE:
+  // DONE NOTE: Taking a call from .insertRecord (article.js, line 60). We are using SQL to insert into our table (articles) the records with values for fields title, author, authorURL, category, publishedOn and body, and finding the values in the specific records for those fields.
+  //It looks like this is specifically to CREATE/insert a new record.
+  //Why is this function on the prototype,and other functions such as fetchAll() or truncateTable() are not?
   client.query(
     `INSERT INTO
     articles(title, author, "authorUrl", category, "publishedOn", body)
@@ -78,7 +81,8 @@ app.post('/articles', function(request, response) {
 });
 
 app.put('/articles/:id', function(request, response) {
-  // NOTE:
+  // DONE NOTE: This call is coming from .updateRecord() (article.js, line 78). We are making an UPDATE query to let me database know to update the table and add additional records and records values.
+  //Is this updating the database or our client-side table? It's updating our database, because the .updateRecord function is using a 'PUT' method, and UPDATE is a function to update the database, not the client-side item reading and pulling from it.
   client.query(
     `UPDATE articles
     SET
@@ -104,7 +108,7 @@ app.put('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles/:id', function(request, response) {
-  // NOTE:
+  // DONE NOTE: This call is coming from .deleteRecord() (article.js, line 67). We're finding an article by Id, and deleting it if it matches that Id. If the deletion is successful, we return a response to the console or terminal, "Delete complete". If it is a failure, we'll throw an error with our .catch() function.
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     [request.params.id]
@@ -118,7 +122,9 @@ app.delete('/articles/:id', function(request, response) {
 });
 
 app.delete('/articles', function(request, response) {
-  // NOTE:
+  // DONE NOTE: This is related to .truncateTable() (article.js, line 48). Different from .deleteRecord() and our above .delete request, this will actually delete our database table 'articles'. Like before, if the deletion is successful, we return a response to the console or terminal, "Delete complete". If it is a failure, we'll throw an error with our .catch() function.
+  // Is this deleting the entire table, or just the records and values within the table? It is deletign the values within the table; it says DELETE FROM rather than simply DELETE.
+  //This will delete everything; we'll usually use a WHERE to be more specific about what's being deleted.
   client.query(
     'DELETE FROM articles;'
   )
@@ -130,7 +136,7 @@ app.delete('/articles', function(request, response) {
   });
 });
 
-// NOTE:
+// DONE NOTE: We're calling our function below (line 170)to create our database and populate it with the values from 'hackerIpsum.json' (which we do by calling the function loadArticles() within loadDB().)
 loadDB();
 
 app.listen(PORT, function() {
@@ -141,7 +147,8 @@ app.listen(PORT, function() {
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
 function loadArticles() {
-  // NOTE:
+  // DONE NOTE: We're selecting everything from the table and returning the number of records within the table to the client. 
+  // If there is nothing in the table, we're reading the file 'hackerIpsum.js', parsing the JSON information to a string and populating the table with into new fields and records, with values going into each record. We're then sending those back to our client to be displayed on screen.
   client.query('SELECT COUNT(*) FROM articles')
   .then(result => {
     if(!parseInt(result.rows[0].count)) {
@@ -161,7 +168,8 @@ function loadArticles() {
 }
 
 function loadDB() {
-  // NOTE:
+  // DONE NOTE: If a table doesn't exist, we are creating an entirely new table and setting the types for each field. We're then running the loadArticles() function (above) to populate the records and values for our newly created table. We have a .catch() function to throw an error, should something not go right.
+  // We're using a template string for our client query.
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
       article_id SERIAL PRIMARY KEY,
