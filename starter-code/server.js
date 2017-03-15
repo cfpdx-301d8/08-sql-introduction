@@ -141,7 +141,7 @@ app.listen(PORT, function() {
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
 function loadArticles() {
-  // NOTE:
+  // NOTE: This function is querying the entire table and writes an arrow function that checks if there is nothing in that table. If there isn't, it uses the method .readFile on the package object 'fs' to read our hackeripsum.json file (first argument) and then uses another arrow function as the second argument on .readFile that parses the file data and for each item in that array of data, runs another arrow functions that queries the client with a string of SQL that inserts a list of columns and values/records that correspond to the attributes on the elements in the array parsed from the json file. These match the property in the dot notation below ($1 = ele.title).
   client.query('SELECT COUNT(*) FROM articles')
   .then(result => {
     if(!parseInt(result.rows[0].count)) {
@@ -161,7 +161,7 @@ function loadArticles() {
 }
 
 function loadDB() {
-  // NOTE:
+  // NOTE: This function initializes/configures the table, first checking to see if it doesnt already exist. In the configuration, it specifies the data type of each field. Upon success, the .then function calls the loadArticles function written starting on line 143 which loads the article data from the hackeripsum.json file and populates the table that now has structure with that data. Otherwise, the .catch function runs. 
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
       article_id SERIAL PRIMARY KEY,
